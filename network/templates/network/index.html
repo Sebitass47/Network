@@ -1,0 +1,70 @@
+{% extends "network/layout.html" %}
+{% load static %}
+{% block body %}
+
+    <div id="alert-success" class="alert alert-success" role="alert"></div>
+    <div id="alert-danger" class="alert alert-danger" role="alert"></div>
+
+    {% if profile %}
+      <div id="profile">
+        {% csrf_token %}
+        <h3>{{ profile }}</h3>
+        <p class="info">Followers: {{ follow }} </p>
+        <p class="info">Following: {{following }}</p><br>
+        {% if user.is_authenticated %}
+          {% if user != profile %}
+            <button id="follow" data-follow="{{ profile.id }}">Follow</button> 
+          {% endif %}
+        {% endif %}
+      </div>
+    {% endif%}
+
+
+
+    <div class="posts">
+        {% for post in page_obj %}
+          <div class="post" id="post_{{ post.id }}">
+            <h4><a href="{% url 'user' post.created_by.id %}">{{ post.created_by }}</a></h4>
+            <p class="content" id="{{ post.id }}">{{ post.content }}</p>
+            <p class="timestamp">{{ post.timestamp }}</p>
+            <div><span class="heart" data-heart="{{ post.id }}" id="heart_drawing_{{ post.id }}">&#x2661</span><span id="number_{{ post.id }}"> {{ post.hearts }}</span></div>
+            {% if user.id == post.created_by.id %}
+            <button class="button-edit" data-edit="{{ post.id }}">Edit</button>
+            <button class="button-delete" data-delete="{{ post.id }}">Delete</button>
+          {% endif %}
+          </div>
+        {% endfor %}
+        
+    </div>
+    <div id="div_create">
+      <form id="create">
+        <div id="close_edit" class="close_div"><i class='bx bx-x'></i></div>
+        <legend>Edit</legend>
+        <textarea maxlength="500" id="edit" required></textarea>
+        {% csrf_token %}
+        <input type="submit" id="submit-edit" value="Edit">
+      </form>
+    </div>
+
+    <nav  aria-label="Page navigation example">
+      <ul class="pagination justify-content-center" class="step-links">
+          {% if page_obj.has_previous %}
+            <li class="page-item"><a href="?page=1" class="page-link">&laquo;&laquo;</a></li>
+            <li class="page-item"><a href="?page={{ page_obj.previous_page_number }}" class="page-link">&laquo;</a></li>
+          {% endif %}
+  
+          <li class="page-item disabled"><a  class="page-link">
+              {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}.
+          </a></li>
+  
+          {% if page_obj.has_next %}
+            <li class="page-item"><a href="?page={{ page_obj.next_page_number }}" class="page-link">&raquo;</a></li>
+            <li class="page-item"><a href="?page={{ page_obj.paginator.num_pages }}" class="page-link">&raquo;&raquo;</a></li>
+          {% endif %}
+        </ul>
+    </nav>
+
+   
+
+{% endblock %}
+
